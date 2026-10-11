@@ -1,0 +1,12 @@
+{
+  "name": "v-notch-tauri",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev:ui": "vite ui --port 1430 --strictPort --host 127.0.0.1",
+    "app": "cargo tauri dev"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}

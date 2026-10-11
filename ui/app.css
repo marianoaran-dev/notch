@@ -1,0 +1,66 @@
+/* App mode: the prototype page becomes a transparent overlay.
+   Applied only when app-shell.js adds the "app" class (inside Tauri, or with ?app in a browser). */
+html.app,html.app body{background:transparent!important;overflow:hidden;min-height:0;scrollbar-gutter:auto}
+html.app .page{max-width:none;margin:0;padding:0}
+html.app .topline,
+html.app .panel-bottom,
+html.app .sample-label,
+html.app .hoverhint{display:none!important}
+html.app .stage,
+html.app .stage.tasks-open,
+html.app .stage.audio-open,
+html.app .stage.display-open{min-height:0!important;padding:0;background:none}
+html.app .stage:before{display:none}
+/* Nothing in the overlay should be selectable or draggable like a web page. */
+html.app body{user-select:none;-webkit-user-select:none;cursor:default}
+html.app input{user-select:text;-webkit-user-select:text}
+/* Header status line doubles as the "sign in" button when an account is not connected. */
+html.app .header-status.action{color:#ffd479;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+html.app .header-status.code{color:#ffd479;font-weight:700;letter-spacing:.03em;text-decoration:none;font-variant-numeric:tabular-nums}
+
+/* Banked resets: centre the label and chips as one group. */
+html.app .banked{display:flex;justify-content:center;align-items:center;gap:26px}
+html.app .banked-chips{justify-content:center}
+/* An account that is not connected shows its numbers dimmed, never as if real. */
+html.app #notch[data-unconnected="1"] .quota-grid{opacity:.25}
+/* Accounts switched off in Settings disappear from the tabs and the small notch. */
+html[data-hidden-accounts~="0"] [data-account="0"],html[data-hidden-accounts~="0"] #idleShell > :nth-child(1),
+html[data-hidden-accounts~="1"] [data-account="1"],html[data-hidden-accounts~="1"] #idleShell > :nth-child(2),
+html[data-hidden-accounts~="2"] [data-account="2"],html[data-hidden-accounts~="2"] #idleShell > :nth-child(3){display:none!important}
+
+/* The prototype's own CSS makes the Display rail ignore the pointer whenever the Display area is
+   hovered or focused (".companion-display:hover .display-rail{pointer-events:none}"), which turns
+   the rail off the moment the pointer lands on Day, Night or Off. The Settings rail has no such
+   rule. While the rail is open it must always accept the pointer. */
+html.app .companion-display .display-rail.is-open{pointer-events:auto!important}
+
+/* Day / Night shortcuts with nothing saved yet look inactive (clicking one opens Display to set it up). */
+html.app .companion-bubble.no-preset{filter:grayscale(1) opacity(.5)}
+/* Message rows inside the monitor list (loading, nothing found). */
+html.app #displayMonitors > .display-foot{margin:14px 4px;text-align:center}
+
+/* Tasks: resizing.
+   The list is at least --tasks-list-min tall (set by dragging) and at most --tasks-list-h before it scrolls.
+   The panel no longer pads itself out to half the screen, so the notch ends right under the footer. */
+html.app .task-items{min-height:var(--tasks-list-min,75px);max-height:var(--tasks-list-h,340px)}
+html.app .notch .tasks-preview{min-height:0;padding-bottom:46px}
+
+/* The resize handle is a rim light along the inside of the notch's rounded bottom edge. It curves up
+   into both corners like the notch itself. Three invisible hot zones sit on it: the middle resizes
+   up and down, the two ends resize diagonally. Shown only while Tasks is open. */
+html.app .tasks-rim{position:absolute;display:none;left:0;right:0;bottom:0;height:46px;border-radius:inherit;pointer-events:none;z-index:29}
+html.app .notch.screen-tasks:not(.idle) .tasks-rim{display:block}
+html.app .tasks-rim::before{content:"";position:absolute;left:10px;right:10px;top:0;bottom:10px;
+ border-bottom:2.5px solid #ffffff38;border-radius:0 0 20px 20px;
+ transition:border-color .2s,filter .2s,border-bottom-width .2s}
+html.app .notch:has(.tasks-handle:hover) .tasks-rim::before,
+html.app .notch:has(.tasks-handle.dragging) .tasks-rim::before{border-bottom-color:#ffffffe0;border-bottom-width:3px;filter:drop-shadow(0 0 5px #ffffff59)}
+
+html.app .tasks-handle{position:absolute;display:none;z-index:30;touch-action:none;-webkit-user-select:none;user-select:none}
+html.app .notch.screen-tasks:not(.idle) .tasks-handle{display:block}
+html.app .tasks-grab{left:72px;right:72px;bottom:0;height:30px;cursor:ns-resize}
+html.app .tasks-corner-left{left:0;bottom:0;width:72px;height:44px;border-radius:0 0 0 30px;cursor:nesw-resize}
+html.app .tasks-corner-right{right:0;bottom:0;width:72px;height:44px;border-radius:0 0 30px 0;cursor:nwse-resize}
+
+/* Banked resets: a little air under the chips so they never touch the notch's rounded bottom. */
+html.app .banked{padding-bottom:6px}

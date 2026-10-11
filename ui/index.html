@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>V-Notch | Piggy Bank layout study</title>
+<style>
+:root{color-scheme:light;--ink:#252931;--sub:#6d7380;--green:#30d158;--notch:#050506;--line:rgba(255,255,255,.11)}
+*{box-sizing:border-box}
+html{scrollbar-gutter:stable}body{margin:0;min-height:100vh;font-family:"Segoe UI Variable","Segoe UI",Arial,sans-serif;background:radial-gradient(ellipse at 50% 0,#fafbfc 0,#f1f3f6 54%,#e8ebef 100%);color:var(--ink)}
+button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid #629df6;outline-offset:3px}svg{display:block}
+.page{max-width:1170px;padding:30px 26px 70px;margin:auto}
+.topline{display:flex;gap:22px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:30px}
+.eyebrow{font-weight:750;letter-spacing:.12em;font-size:10px;color:#7d8591}.title{font-size:24px;letter-spacing:-.85px;font-weight:720;margin:6px 0 5px}
+.summary{font-size:12px;color:#747b87;margin:0;max-width:520px;line-height:1.6}
+.modebar{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.seg{border-radius:12px;background:#e7e9ed;border:1px solid #dce0e5;padding:4px;display:flex;gap:3px}
+.seg button{border:0;border-radius:9px;background:transparent;padding:9px 14px;font-size:12px;font-weight:650;color:#646a74;transition:background .18s,color .18s}
+.seg button.active{background:#fff;box-shadow:0 1px 5px #00000014;color:#1b1e23}
+.stage{min-height:462px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0 10px 28px;background:linear-gradient(90deg,transparent calc(50% - .5px),#dfe3e850 50%,transparent calc(50% + .5px));}
+.stage:before{content:"";height:1px;background:#d9dde3;position:absolute;top:0;left:0;right:0}
+.notch{position:relative;background:linear-gradient(#050506,#000 72%);color:#fff;border-radius:0 0 30px 30px;width:650px;max-width:100%;height:342px;box-shadow:0 15px 32px #00000024,0 2px 5px #00000016;transition:height .34s cubic-bezier(.2,.8,.18,1),width .34s cubic-bezier(.2,.8,.18,1),border-radius .34s;overflow:visible}
+.notch.idle{height:60px;width:615px;border-radius:0 0 26px 26px}
+.notch:after{position:absolute;content:"";bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,#ffffff12,transparent);pointer-events:none}
+.notch-expanded{padding:35px 22px 13px;transition:opacity .15s}
+.notch.idle .notch-expanded{display:none}
+.notch-idle{display:none;align-items:center;justify-content:center;gap:0;padding:8px 12px;height:59px}
+.notch.idle .notch-idle{display:flex}
+.idle-pair{display:flex;align-items:center;gap:3px;padding:0 12px;position:relative;border-right:1px solid #ffffff26}
+.idle-pair:last-child{border-right:0}
+.idle-item{height:42px;display:flex;align-items:center;gap:6px;padding:0 3px;border:0;border-radius:22px;color:white;background:transparent;transition:background .15s}
+.idle-item:hover{background:#ffffff13}
+.idle-number{font-size:13.5px;font-weight:720;min-width:28px;text-align:left;font-variant-numeric:tabular-nums}
+.idle-ring{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--meter) 0 calc(var(--v)*1%),#30343a 0 100%);flex:none}
+.idle-ring:before{content:"";position:absolute;inset:5px;background:#050506;border-radius:50%}
+.idle-ring svg{width:12px;height:12px;position:relative;fill:#fff}
+.idle-week-bar{width:32px;height:21px;border:1px solid #747b84;border-radius:5px;padding:4px;position:relative}
+.idle-week-bar:after{content:"";position:absolute;height:2px;top:4px;left:5px;right:5px;background:#727983;opacity:.45}
+.idle-week-bar b{display:block;height:5px;border-radius:2px;width:100%;background:linear-gradient(90deg,var(--meter) calc(var(--v)*1%),#34383e calc(var(--v)*1%))}
+.idle-week-bar b:first-child{margin-top:8px}
+.idle-popup{position:absolute;left:50%;bottom:-46px;transform:translateX(-50%) translateY(-4px);background:#14171bf8;border:1px solid #ffffff35;border-radius:10px;color:#fff;box-shadow:0 8px 18px #0003;padding:9px 16px;min-width:105px;text-align:center;font-size:13px;font-weight:650;opacity:0;pointer-events:none;transition:opacity .16s,transform .16s;z-index:5}
+.idle-pair:hover .idle-popup{opacity:1;transform:translateX(-50%) translateY(0)}
+.piggy-header{display:flex;align-items:center;gap:9px;height:30px;white-space:nowrap}
+.logo-title{display:flex;align-items:center;gap:7px;flex:none}
+.piggy-icon{height:26px;width:26px;object-fit:contain}.header-title{font-size:15px;font-weight:750;letter-spacing:-.23px}
+.tabs{display:flex;align-items:center;gap:5px;margin-left:6px}
+.tab{height:24px;min-width:64px;border-radius:14px;border:1px solid #ffffff18;color:#aaaeb5;font-weight:650;font-size:10.5px;padding:0 9px;background:transparent;transition:background .16s}
+.tab:hover{background:#ffffff13;color:white}.tab.active{background:#ffffff2a;border-color:#ffffff4c;color:#fff}
+.header-status{flex:1;min-width:0;text-align:right;font-size:10px;font-weight:530;color:#ffffff91;overflow:hidden;text-overflow:ellipsis}
+.header-actions{display:flex;gap:7px;margin-left:2px}
+.circle-btn{display:grid;place-items:center;width:28px;height:28px;border:1px solid #ffffff28;background:#ffffff15;border-radius:50%;color:#ffffffd5;padding:0;transition:background .15s,transform .15s}
+.circle-btn:hover{background:#ffffff28;transform:translateY(-1px)}.circle-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.quota-grid{margin-top:8px;height:190px;display:grid;grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr);align-items:center}
+.quota-section{height:190px;display:flex;align-items:center;min-width:0}
+.quota-five{padding-left:18px;padding-right:8px}.quota-week{padding:0 10px}
+.capsule{width:60px;height:170px;border:1px solid #969ea891;border-radius:30px;position:relative;flex:none;padding:5px;background:linear-gradient(90deg,#ffffff30,#ffffff08 30%,#ffffff04 65%,#ffffff20);box-shadow:0 5px 14px #0007;overflow:hidden}
+.capsule .well{height:100%;position:relative;overflow:hidden;border-radius:24px;display:flex;align-items:flex-end}
+.capsule .liquid{width:100%;height:calc(var(--v)*1%);background:linear-gradient(90deg,var(--light),var(--meter) 38%,var(--meter) 67%,var(--dark));border-radius:7px 7px 24px 24px;position:relative;transition:height .55s cubic-bezier(.2,.8,.2,1),background .3s;box-shadow:0 0 13px var(--glow)}
+.capsule .liquid:after{content:"";height:15px;position:absolute;left:3px;right:3px;top:0;background:linear-gradient(#ffffff51,transparent);border-radius:8px}
+.capsule .shine{position:absolute;top:9px;bottom:15px;left:9px;width:7px;background:linear-gradient(#ffffff62,#ffffff10 52%,transparent);border-radius:5px;pointer-events:none}
+.quota-copy{margin-left:12px;min-width:0;flex:1}
+.quota-label{color:#ffffffd0;font-size:12.5px;font-weight:750;letter-spacing:.006em;margin:0 0 5px}
+.quota-percent{font-size:39px;letter-spacing:-1.4px;line-height:1.22;font-weight:750;font-variant-numeric:tabular-nums;margin:0}
+.quota-detail{font-size:12px;color:#ffffffb9;margin-top:10px;line-height:1.5;white-space:nowrap}
+.quota-muted{font-size:10.5px;color:#ffffff86;margin-top:7px}
+.week-blocks{display:flex;gap:4px;align-items:center;margin-top:10px;height:12px}
+.week-blocks i{width:6px;height:12px;border-radius:3px;background:#9aa3ad40;transition:background .25s}.week-blocks i.on{background:#70d68b}
+.quota-week.original .capsule{margin-left:10px}
+.quota-week.original .quota-copy{margin-left:12px}
+.quota-week .original-content{display:flex;align-items:center;width:100%}
+.redesign-content{display:none}
+.notch.redesign .quota-week .original-content{display:none}
+.notch.redesign .quota-week .redesign-content{display:flex}
+.quota-week .redesign-content{height:168px;flex-direction:column;justify-content:center;align-items:stretch;padding:0 9px 0 1px;width:100%}
+.week-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:3px 0 8px}
+.week-head .quota-percent{font-size:39px;line-height:1}
+.week-head .percent-note{font-size:10.5px;color:#ffffff83;margin-bottom:5px}
+.week-progress{width:100%;height:13px;display:flex;align-items:center;border-radius:7px;background:#2c3035;box-shadow:inset 0 1px 2px #0006;overflow:hidden}
+.week-fill{width:calc(var(--v)*1%);height:100%;background:linear-gradient(90deg,var(--dark),var(--meter) 55%,var(--light));border-radius:7px;transition:width .55s cubic-bezier(.2,.8,.2,1);min-width:0}
+.week-reset{margin-top:15px;display:flex;justify-content:space-between;align-items:baseline;gap:4px;color:#ffffffbc;font-size:11px}
+.week-reset strong{font-weight:650;font-size:12px;color:white}
+.week-days{margin-top:8px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.week-days span{height:5px;background:#9aa3ad40;border-radius:3px}
+.week-days span.active{background:#70d68b}
+.day-labels{display:flex;justify-content:space-between;color:#ffffff64;font-size:9px;margin-top:6px}
+.banked{margin-top:14px;border-top:1px solid #ffffff19;display:grid;grid-template-columns:112px 1fr;align-items:center;padding:12px 10px 0;min-height:73px}
+.banked-name{font-size:11px;font-weight:750;color:#ffffff96;letter-spacing:.005em;white-space:nowrap}
+.banked-chips{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.banked-chip{border:1px solid #ffffff16;background:#ffffff0e;border-radius:8px;padding:6px 9px;display:flex;gap:7px;align-items:center;min-width:120px}
+.banked-chip img{width:26px;height:26px;object-fit:contain}
+.banked-chip small{display:block;color:#ffffff95;font-weight:750;font-size:9px;line-height:1.3}
+.banked-chip strong{display:block;color:#ffffffce;font-size:11px;font-weight:650;line-height:1.4}
+.banked-empty{font-size:11px;color:#ffffff80}
+.notch.claude:not(.idle){height:314px}
+.notch.claude .banked{display:none}
+.notch.no-data .quota-percent{color:#ffffffb5}
+.hoverhint{font-size:11px;color:#858d99;text-align:center;margin-top:17px}
+.panel-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:24px}
+.card{background:#ffffffb9;border:1px solid #dfe3e8;border-radius:17px;padding:20px 22px;box-shadow:0 2px 7px #26313b05}
+.card h2{font-size:13px;margin:0 0 14px;font-weight:740;letter-spacing:-.1px}
+.card p{font-size:12px;color:#69717c;line-height:1.6;margin:9px 0 0}
+.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px}
+.control label{font-size:11px;font-weight:650;display:flex;justify-content:space-between;gap:7px}
+.control output{color:#53616d;font-variant-numeric:tabular-nums}
+input[type="range"]{accent-color:#2da75d;display:block;width:100%;margin:13px 0 4px}
+.footerline{border-top:1px solid #e6e9ee;margin-top:15px;padding-top:12px;font-size:11px;color:#78818d;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.small-btn{padding:7px 10px;border:1px solid #d5dae0;border-radius:8px;background:#fff;font-size:11px;font-weight:650;color:#48515c}
+.mini-head{display:flex;gap:7px;align-items:center}
+.mini-head svg{stroke:#6b7580;stroke-width:1.75;width:16px;height:16px;fill:none}
+.test-notes{padding-left:17px;color:#68717e;font-size:12px;line-height:1.65;margin:0}
+.test-notes li+li{margin-top:5px}
+.note-link{color:#2c6bb9;text-decoration:none}
+.sample-label{font-size:10px;letter-spacing:.055em;font-weight:750;color:#8b939e;text-transform:uppercase}
+@media(max-width:790px){.page{padding:24px 12px 60px}.panel-bottom{grid-template-columns:1fr}.stage{overflow-x:auto;display:block}.notch{margin:auto;min-width:650px}.notch.idle{min-width:615px}.hoverhint{margin:auto;max-width:650px}.topline{gap:17px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* Original V-Notch companion bubbles, with experimental hover-to-reveal Display shortcuts. */
+.companion-display,.companion-tasks{position:absolute;top:calc(50% - 20px);height:40px;z-index:12}
+.companion-display{right:calc(100% + 10px);width:40px}
+.companion-tasks{left:calc(100% + 10px);width:40px}
+.companion-bubble{position:relative;display:grid;place-items:center;flex:none;border:1.2px solid #353b42;background:#0a0c0ef2;color:#f3f4f6;padding:0;border-radius:50%;box-shadow:0 2px 12px #00000025;transition:transform .18s cubic-bezier(.2,.8,.25,1),background .18s,border-color .18s}
+.companion-bubble:hover{transform:scale(1.06);background:#171a1e;border-color:#777f89}
+.companion-bubble:active{transform:scale(.96)}
+.companion-bubble svg{width:49%;height:49%;overflow:visible;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.companion-bubble.main{width:40px;height:40px;z-index:2}
+.companion-bubble.small{width:30px;height:30px}
+.display-rail{position:absolute;right:calc(100% - 2px);top:5px;display:flex;align-items:center;gap:7px;padding-right:4px;opacity:0;visibility:hidden;pointer-events:none;transform:translateX(17px) scale(.94);transform-origin:right center;transition:opacity .19s ease,transform .28s cubic-bezier(.18,.8,.18,1),visibility 0s linear .28s;white-space:nowrap}
+.companion-display:hover .display-rail,.companion-display:focus-within .display-rail,.companion-display.pinned .display-rail{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0) scale(1);transition:opacity .18s ease,transform .28s cubic-bezier(.18,.8,.18,1),visibility 0s}
+.companion-display.pinned .companion-bubble.main{border-color:#8a939b;background:#16191d}
+.companion-bubble.selected{border-color:#8a939b;background:#202429}
+.tasks-preview{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:420px;max-width:calc(100vw - 36px);padding:14px;background:#060608fa;color:#f2f2f4;border:1px solid #ffffff22;border-radius:22px;box-shadow:0 15px 35px #0005;z-index:15;text-align:left}
+.tasks-preview[hidden]{display:none}
+.task-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.task-head-mark{width:28px;height:28px;border-radius:8px;background:#151519;border:1px solid #ffffff16;display:grid;place-items:center;font-size:16px;font-weight:650}
+.task-head-meta{flex:1;min-width:0}.task-head-meta strong{display:block;font-size:11px;letter-spacing:.02em}
+.task-head-meta small{color:#92929c;font-size:10px}
+.task-close{width:28px;height:28px;background:transparent;border:0;color:#999aa5;font-size:22px;border-radius:50%}
+.task-close:hover{color:white;background:#ffffff18}
+.task-entry{height:42px;display:flex;align-items:center;gap:9px;padding:0 10px;margin-bottom:12px;border:1px solid #ffffff16;background:#0f0f12;border-radius:13px}
+.task-entry span{font-size:17px;color:#d5d6dd}
+.task-entry input{flex:1;min-width:0;color:white;background:transparent;border:0;outline:none;font-size:12.5px}
+.task-entry input::placeholder{color:#777984}
+.task-row{display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid #ffffff0e;padding:9px 5px;font-size:12.5px;line-height:1.45}
+.task-row:last-child{border-bottom:0}
+.task-row button{width:20px;height:20px;flex:none;margin-top:0;border:1px solid #555862;background:transparent;border-radius:6px;color:#d6d7de;padding:0;display:grid;place-items:center;font-size:13px}
+.task-row button:hover{border-color:#a0a5ad}
+.task-row.done span{color:#777985;text-decoration:line-through}
+.task-row.done button{background:#3d8058;border-color:#3d8058;color:white}
+.task-items{max-height:205px;overflow:auto;padding:0 3px}
+.task-completed{margin-top:12px;padding:9px 2px 2px;width:100%;border:0;border-top:1px solid #ffffff16;background:transparent;display:flex;align-items:center;gap:7px;color:#c3c4ce;font-size:11.5px;font-weight:700;text-align:left}
+.task-completed .chevron{display:inline-block;transition:transform .18s}
+.task-completed[aria-expanded="true"] .chevron{transform:rotate(90deg)}
+.task-completed .count{border-radius:12px;background:#292a31;padding:2px 7px;color:#e0e1e8}
+.task-completed-items[hidden]{display:none}
+.task-foot{margin-top:10px;color:#7d7f89;font-size:10px}
+.stage.tasks-open{min-height:590px}
+@media(max-width:1030px){.stage{min-width:1010px}.stage .notch{max-width:none}}
+@media(prefers-reduced-motion:reduce){.display-rail,.task-completed .chevron{transition:none!important}}
+
+
+/* Codenotch motion adaptation, controlled by codenotch-motion.js.
+   No custom perpetual bubbles, shimmer loops or conflicting spring curves.
+   See THIRD_PARTY_NOTICES.md for source and MIT licence. */
+.notch{transition:none}
+.notch-expanded,.notch-idle{will-change:opacity,translate}
+.capsule .liquid,.week-fill,.idle-ring,.idle-week-bar,.week-blocks i,.week-days span{transition:none}
+.capsule,.banked-chip,.card,.logo-title .piggy-icon{animation:none;transition:none}
+.tab,.circle-btn,.companion-bubble,.idle-item,.small-btn,.seg button,.task-row button,.task-close{
+ transition:background-color .16s ease-in-out,border-color .16s ease-in-out,color .16s ease-in-out;
+ transform:none;
+}
+.tab:hover,.circle-btn:hover,.companion-bubble:hover,.idle-item:hover,.seg button:hover,.small-btn:hover{transform:none}
+.companion-bubble:active{transform:none}
+.companion-bubble{position:relative}
+.companion-bubble.main{z-index:2}
+.companion-bubble.small{opacity:0;visibility:hidden;will-change:translate,opacity}
+.companion-display{isolation:isolate}
+.display-rail,
+.companion-display:hover .display-rail,
+.companion-display:focus-within .display-rail,
+.companion-display.pinned .display-rail{
+ opacity:1;visibility:visible;transform:none;transition:none;pointer-events:none;z-index:1;
+}
+.display-rail.is-open{pointer-events:auto}
+.display-rail .companion-bubble{transition:none;will-change:translate,opacity}
+.companion-display .display-goo{
+ position:absolute;right:-7px;top:-4px;width:168px;height:48px;
+ overflow:visible;pointer-events:none;z-index:0;opacity:0;
+}
+.companion-display .display-goo circle{fill:#14171b}
+.notch .idle-popup{
+ opacity:0;transform:translateX(-50%) translateY(var(--tooltip-y,-7px));
+ transition:opacity .16s ease-in-out;
+}
+.notch .idle-pair:hover .idle-popup,.notch .idle-pair:focus-within .idle-popup{
+ opacity:1;transform:translateX(-50%) translateY(var(--tooltip-y,-7px));
+}
+.idle-pair,.banked-chip,.task-row{animation:none}
+.task-row{transition:background-color .16s ease-in-out}
+.tasks-preview{will-change:transform,opacity}
+.task-completed .chevron{transition:transform .3s cubic-bezier(.34,1.4,.64,1)}
+.task-completed-items{overflow:hidden}
+.task-completed-items[hidden],.tasks-preview[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+ .companion-display .display-goo{display:none}
+}
+
+/* Companion bubbles stay pinned to the notch's TOP edge at every height,
+   including compact glance, fully expanded Piggy and the Claude layout. */
+.companion-display,.companion-tasks,.companion-settings{
+  position:absolute;top:10px;height:40px;z-index:12;
+}
+.companion-display{right:calc(100% + 10px)}
+.companion-tasks{left:calc(100% + 10px)}
+.companion-settings{left:calc(100% + 58px);width:40px;isolation:isolate}
+.companion-settings .settings-rail{
+  position:absolute;left:calc(100% - 2px);top:5px;
+  display:flex;align-items:center;gap:7px;padding-left:4px;
+  width:max-content;opacity:1;visibility:visible;pointer-events:none;z-index:1;
+}
+.companion-settings .settings-rail.is-open{pointer-events:auto}
+.settings-rail .companion-bubble.small{opacity:0;visibility:hidden;will-change:translate,opacity}
+.companion-settings .settings-goo{
+  position:absolute;left:-7px;top:-4px;width:168px;height:48px;
+  overflow:visible;opacity:0;pointer-events:none;z-index:0;
+  will-change:opacity;
+}
+.companion-settings .settings-goo circle{fill:#14171b}
+.companion-settings .settings-rail svg path{fill:currentColor;stroke:none}
+.companion-settings .settings-rail img{
+  width:19px;height:19px;object-fit:contain;position:relative;z-index:1;
+}
+.companion-settings.pinned .companion-bubble.main{border-color:#8a939b;background:#16191d}
+
+/* Full Audio mixer study: applies the approved compact Sound visual vocabulary
+   to every existing type of control: two system channels, applications, device
+   routing, mute, volume and collapsible groups. All interactions are local. */
+.stage.audio-open{min-height:740px}
+.audio-preview{
+ position:absolute;top:68px;left:50%;translate:-50% 0;transform-origin:top center;
+ width:min(860px,calc(100vw - 42px));max-height:min(625px,calc(100vh - 110px));
+ border-radius:24px;padding:23px 25px 20px;z-index:16;
+ background:#090a0dec;color:#f5f5f8;border:1px solid #ffffff24;
+ box-shadow:0 22px 55px #0007,0 1px 3px #0003;overflow:auto;
+ scrollbar-width:thin;scrollbar-color:#4a4c56 transparent;
+}
+.audio-preview[hidden]{display:none}
+.audio-top{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding-bottom:14px;border-bottom:1px solid #ffffff16}
+.audio-kicker{font-size:10px;font-weight:750;letter-spacing:.13em;color:#858b97}
+.audio-title{font-size:18px;font-weight:720;letter-spacing:-.35px;margin:5px 0 0}
+.audio-detail{font-size:11px;color:#979ba5;margin-top:5px}
+.audio-top button{height:30px;width:30px;flex:none;border:1px solid #ffffff18;background:#ffffff09;color:#b5bac4;border-radius:10px;font-size:22px;display:grid;place-items:center}
+.audio-top button:hover{background:#ffffff1b;color:white}
+.audio-section{border-bottom:1px solid #ffffff15;padding:12px 0 14px}
+.audio-section:last-of-type{border-bottom:0}
+.audio-section summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:30px;padding:0 1px}
+.audio-section summary::-webkit-details-marker{display:none}
+.audio-section summary:focus-visible{outline:2px solid #8babfa;outline-offset:3px;border-radius:7px}
+.audio-section-title{font-weight:720;font-size:13px;letter-spacing:-.1px}
+.audio-section-arrow{width:12px;height:12px;stroke:#a8adb5;stroke-width:2;fill:none;transition:transform .23s cubic-bezier(.34,1.4,.64,1)}
+.audio-section:not([open]) .audio-section-arrow{transform:rotate(-90deg)}
+.audio-section-meta{margin-left:auto;font-size:10px;color:#8e929c}
+.audio-table-head{display:grid;grid-template-columns:minmax(158px,1.35fr) minmax(170px,1.5fr) minmax(182px,1.15fr);gap:15px;margin:12px 0 2px;padding:0 5px 5px;color:#888d98;font-weight:680;font-size:10px;letter-spacing:.035em}
+.audio-table-head span:nth-child(2),.audio-table-head span:nth-child(3){text-align:left}
+.audio-channel{display:grid;grid-template-columns:minmax(158px,1.35fr) minmax(170px,1.5fr) minmax(182px,1.15fr);gap:15px;align-items:center;min-height:57px;padding:7px 5px;border-radius:12px;transition:background .16s ease}
+.audio-channel:hover{background:#ffffff09}
+.audio-source{display:flex;align-items:center;gap:9px;min-width:0}
+.audio-source-icon{display:grid;place-items:center;width:29px;height:29px;flex:none;border-radius:9px;background:#1b1e24;border:1px solid #ffffff15;color:#f5f5f5}
+.audio-source-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.audio-app-icon{font-size:12px;font-weight:750;letter-spacing:-.4px}
+.audio-app-icon.steam{background:#192d40;color:#d8e9f6}
+.audio-app-icon.dock{background:#223c6b;color:#cce0ff}
+.audio-app-icon.vnotch{background:#32343a;color:#f4f4f6}
+.audio-app-icon.claude{background:#b66b4f;color:#fff}
+.audio-source-text{min-width:0}
+.audio-source-text strong{display:block;font-size:12px;font-weight:670;color:#ecedf0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.audio-source-text small{display:block;color:#838892;font-size:10px;margin-top:3px}
+.audio-volume-controls{min-width:0;display:flex;align-items:center;gap:9px}
+.audio-mute-btn{display:grid;place-items:center;width:27px;height:27px;flex:none;padding:0;background:transparent;color:#a3a8b2;border:1px solid transparent;border-radius:8px}
+.audio-mute-btn:hover{background:#ffffff13;color:#fff}
+.audio-mute-btn[aria-pressed="true"]{color:#e99a92;background:#be6b6030;border-color:#e99a9233}
+.audio-mute-btn svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.audio-channel input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:5px;border-radius:5px;outline:none;background:linear-gradient(90deg,#30d158 0 var(--level,50%),#3f4148 var(--level,50%) 100%);cursor:pointer}
+.audio-channel input[type=range]:focus-visible{outline:2px solid #8babfa;outline-offset:6px}
+.audio-channel input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;background:#fff;border:0;border-radius:50%;box-shadow:0 1px 4px #0007;transition:transform .14s}
+.audio-channel input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.audio-channel input[type=range]::-moz-range-thumb{width:16px;height:16px;background:#fff;border:0;border-radius:50%;box-shadow:0 1px 4px #0007}
+.audio-channel input[type=range]:disabled{opacity:.45;cursor:default}
+.audio-channel output{width:38px;flex:none;text-align:right;font-size:12px;font-weight:700;color:#d0d2d9;font-variant-numeric:tabular-nums}
+.audio-channel output.muted{color:#e99a92}
+.audio-route-wrap{position:relative;min-width:0}
+.audio-route-wrap:after{content:"";position:absolute;right:10px;top:50%;transform:translateY(-60%) rotate(45deg);height:6px;width:6px;border-right:1.5px solid #858b97;border-bottom:1.5px solid #858b97;pointer-events:none}
+.audio-route-wrap select{appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 25px 0 10px;color:#d5d6dc;background:#121419;border:1px solid #ffffff24;border-radius:10px;font-size:11px;font-weight:590;text-overflow:ellipsis;cursor:pointer}
+.audio-route-wrap select:hover{border-color:#ffffff51}
+.audio-route-wrap select:focus-visible{outline:2px solid #8babfa;outline-offset:2px}
+.audio-route-wrap option{background:#191b20;color:white}
+.audio-foot{font-size:10px;line-height:1.6;color:#858996;margin:13px 0 0}
+@media(max-width:760px){
+ .audio-preview{padding:16px;width:calc(100vw - 24px);max-height:70vh}
+ .audio-table-head{display:none}
+ .audio-channel{grid-template-columns:1fr;gap:7px;padding:12px 8px;border-bottom:1px solid #ffffff0f}
+ .audio-channel:last-child{border-bottom:0}
+ .audio-volume-controls,.audio-route-wrap{margin-left:0}
+ .audio-route-wrap select{width:100%}
+}
+
+/* Display menu: sample of production's monitors, brightness/contrast,
+   per-monitor linking, global linking, preset slots and header actions.
+   Shares the approved Audio mixer visual language and Codenotch motion. */
+.stage.display-open{min-height:665px}
+.display-preview{
+ position:absolute;top:68px;left:50%;translate:-50% 0;transform-origin:top center;
+ width:min(660px,calc(100vw - 42px));max-height:min(565px,calc(100vh - 110px));
+ padding:22px 24px 20px;border-radius:24px;z-index:16;
+ background:#090a0dec;color:#f5f5f8;border:1px solid #ffffff24;
+ box-shadow:0 22px 55px #0007,0 1px 3px #0003;overflow:auto;
+ scrollbar-width:thin;scrollbar-color:#4a4c56 transparent;
+}
+.display-preview[hidden]{display:none}
+.display-preview .audio-top{align-items:center}
+.display-preview .audio-title{display:flex;align-items:center;gap:8px}
+.display-preview .audio-title svg{width:19px;height:19px;stroke:#ebedf2;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.display-head-actions{display:flex;align-items:center;gap:8px;flex:none}
+.display-header-btn{display:grid;place-items:center;height:30px;width:30px;border:1px solid #ffffff20;border-radius:10px;background:#ffffff0b;color:#c6c8cf}
+.display-header-btn:hover{color:white;background:#ffffff20}
+.display-header-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.display-header-btn:focus-visible{outline:2px solid #8babfa;outline-offset:2px}
+.display-preview .audio-top #displayClose{font-size:22px}
+.display-link-all{display:flex;align-items:center;gap:8px;margin-right:4px;color:#bec2ca;font-size:11px;white-space:nowrap;cursor:pointer}
+.display-link-all input,.display-monitor-link input{accent-color:#30d158;width:15px;height:15px;margin:0;cursor:pointer}
+.display-presets{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0 12px;border-bottom:1px solid #ffffff15}
+.display-presets>strong{font-size:11px;font-weight:690;color:#c6c9d0}
+.display-presets-list{display:flex;gap:6px;flex-wrap:wrap}
+.display-preset{height:28px;border:1px solid #ffffff22;border-radius:8px;padding:0 11px;background:#15171c;color:#c9cdd5;font-weight:680;font-size:10.5px}
+.display-preset:hover{background:#292d34;border-color:#ffffff46}
+.display-preset[aria-pressed="true"]{border-color:#30d15880;color:#87ebac;background:#2b9e4728}
+.display-save{height:28px;padding:0 11px;margin-left:auto;border-radius:8px;font-size:10.5px;font-weight:680;color:#d7dae0;background:#ffffff14;border:1px solid #ffffff24}
+.display-save:hover{background:#ffffff26}
+.display-monitors{padding:8px 0 0}
+.display-monitor{padding:13px 0 15px;border-bottom:1px solid #ffffff16}
+.display-monitor:last-child{border-bottom:0;padding-bottom:5px}
+.display-monitor-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:9px}
+.display-monitor-heading{display:flex;align-items:center;gap:9px;min-width:0}
+.display-monitor-heading svg{width:18px;height:18px;stroke:#c6ccd6;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.display-monitor-heading strong{font-size:12px;font-weight:720;white-space:nowrap}
+.display-monitor-heading span{font-size:10px;color:#9095a1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.display-monitor-link{display:flex;align-items:center;gap:7px;font-size:10.5px;color:#c6c9d0;cursor:pointer}
+.display-control{display:grid;grid-template-columns:100px minmax(140px,1fr) 42px;gap:12px;align-items:center;min-height:38px;padding:2px 6px;border-radius:10px}
+.display-control:hover{background:#ffffff08}
+.display-control label{font-size:11.5px;color:#e3e5ea;font-weight:670}
+.display-control input[type=range]{-webkit-appearance:none;appearance:none;width:100%;min-width:0;height:5px;border-radius:4px;cursor:pointer;background:linear-gradient(90deg,#30d158 0 var(--level,50%),#44464e var(--level,50%) 100%)}
+.display-control input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0007}
+.display-control input[type=range]::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#fff}
+.display-control output{font-size:12px;font-weight:700;color:#cfd4db;text-align:right;font-variant-numeric:tabular-nums}
+.display-control input:focus-visible{outline:2px solid #8babfa;outline-offset:5px}
+.display-foot{font-size:10px;line-height:1.55;color:#858996;margin:13px 0 0}
+@media(max-width:720px){
+ .display-preview{padding:16px;width:calc(100vw - 24px);max-height:70vh}
+ .display-head-actions{gap:5px;flex-wrap:wrap;justify-content:flex-end}
+ .display-presets{gap:8px}
+ .display-save{margin-left:0}
+ .display-control{grid-template-columns:75px minmax(100px,1fr) 38px;gap:8px}
+ .display-monitor-heading span{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){.companion-settings .settings-goo{display:none}}
+
+/* Main utility views now expand inside the notch body, not as floating windows. */
+.notch .display-preview,.notch .audio-preview{
+ position:relative;top:auto;left:auto;translate:none;transform-origin:top center;
+ width:100%;max-width:none;max-height:none;min-height:0;overflow:visible;
+ border:0;border-radius:0;box-shadow:none;background:transparent;
+ padding:36px 24px 24px;margin:0;
+}
+.notch .display-preview[hidden],.notch .audio-preview[hidden]{display:none!important}
+.notch.idle .audio-preview,.notch.idle .display-preview{display:none!important}
+.notch:not(.idle).screen-display .notch-expanded,
+.notch:not(.idle).screen-audio .notch-expanded{display:none}
+.notch:not(.idle).screen-display .display-preview,
+.notch:not(.idle).screen-audio .audio-preview{display:block}
+.notch:not(.idle).screen-piggy .display-preview,
+.notch:not(.idle).screen-piggy .audio-preview{display:none}
+.stage.audio-open,.stage.display-open{min-height:710px}
+@media(max-width:920px){
+ .notch.screen-audio{max-width:calc(100vw - 28px)}
+ .notch .audio-preview,.notch .display-preview{padding:35px 18px 20px}
+}
+
+/* Tasks is the fourth PRIMARY notch screen, not a floating companion.
+   It shares Piggy/Audio/Display's in-flow expansion and spring clip. */
+.notch .tasks-preview{
+ position:relative;top:auto;left:auto;transform:none;translate:none;
+ transform-origin:top center;width:100%;max-width:none;
+ min-height:min(455px,calc(50vh + 52px));max-height:none;
+ padding:37px 26px 23px;margin:0;overflow:visible;
+ background:transparent;border:0;box-shadow:none;border-radius:0;
+ text-align:left;will-change:opacity;
+}
+.notch .tasks-preview[hidden],.notch.idle .tasks-preview{display:none!important}
+.notch:not(.idle).screen-tasks .notch-expanded,
+.notch:not(.idle).screen-tasks .audio-preview,
+.notch:not(.idle).screen-tasks .display-preview{display:none!important}
+.notch:not(.idle).screen-tasks .tasks-preview{display:block}
+.notch:not(.idle):not(.screen-tasks) .tasks-preview{display:none!important}
+.stage.tasks-open{min-height:590px}
+.task-head{padding-bottom:15px;margin-bottom:15px;border-bottom:1px solid #ffffff17}
+.task-head-mark{width:33px;height:33px;border-radius:11px;flex:none;font-size:16px}
+.task-head-meta strong{font-size:13px;letter-spacing:.045em}
+.task-head-meta small{font-size:11px;display:block;margin-top:4px}
+.task-entry{margin-bottom:15px}
+.task-items{max-height:min(37vh,340px);min-height:75px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#4a4d55 transparent}
+.task-row{align-items:flex-start;gap:10px;padding:9px 7px;min-height:38px;white-space:normal}
+.task-row:hover{background:#ffffff08;border-radius:9px}
+.task-row .task-text{flex:1;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap;cursor:text;user-select:text}
+.task-row .task-text:focus-visible{outline:2px solid #8babfa;outline-offset:2px;border-radius:3px}
+.task-row .task-edit{flex:1;min-width:0;background:#17191e;color:#eceff4;border:1px solid #ffffff45;border-radius:8px;padding:7px 9px;font:inherit;line-height:1.5;resize:vertical;outline-color:#8babfa;overflow-wrap:anywhere}
+.task-row .task-delete,.task-row .task-flag{flex:none;width:24px;height:24px;margin:-2px 0 0;padding:3px;border:0;background:transparent;color:#858991;opacity:.58}
+.task-row .task-delete:hover,.task-row .task-flag:hover{background:#ffffff12;color:#e8e9ed;opacity:1}
+.task-row .task-flag[aria-pressed="true"]{color:#e3ad6d;opacity:1}
+.task-row .task-delete svg,.task-row .task-flag svg{width:15px;height:15px;display:block;stroke:currentColor;stroke-width:1.65;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.task-row .task-flag[aria-pressed="true"] svg{fill:currentColor}
+.task-row.done .task-text{color:#777985;text-decoration:line-through}
+.task-row.done .task-delete{opacity:.65}
+.task-completed{margin-top:15px;padding-top:13px}
+.task-completed .count{border-radius:999px;min-width:22px;text-align:center}
+.task-completed-items{overflow:hidden;max-height:140px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#4a4d55 transparent}
+.task-foot{font-size:10px;margin-top:13px}
+@media(max-width:920px){.notch .tasks-preview{padding:35px 18px 20px}}
+@media(prefers-reduced-motion:reduce){.task-completed .chevron{transition:none!important}}
+
+/* Lucide icon system. Source-accurate SVGs render with currentColor. */
+svg.lucide{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.companion-settings .settings-rail svg.lucide path{fill:none;stroke:currentColor}
+.task-head-mark svg.lucide{width:17px;height:17px}
+.task-completed svg.lucide.chevron{width:13px;height:13px}
+</style>
+<link rel="stylesheet" href="./app.css">
+<link rel="stylesheet" href="./settings.css">
+</head>
+<body>
+<div class="page">
+  <header class="topline">
+    <div><div class="eyebrow">V-NOTCH / INTERACTION STUDY</div><h1 class="title">V-Notch · Piggy &amp; companions</h1><p class="summary">Piggy and companion layout with motion adapted from Codenotch’s springs and liquid-merging shapes. Click Display to open its full monitor screen; hover for Day, Night and Off. Settings provides Piggy and Sound.</p></div>
+    <div class="modebar">
+      <div class="seg" role="group" aria-label="Design"><button type="button" id="current" aria-pressed="false">Current UI</button><button type="button" id="redesign" class="active" aria-pressed="true">Redesign</button></div>
+      <div class="seg" role="group" aria-label="View"><button type="button" id="expanded" class="active" aria-pressed="true">Expanded</button><button type="button" id="idle" aria-pressed="false">Notch glance</button></div>
+
+    </div>
+  </header>
+  <main>
+  <div class="stage" aria-label="V-Notch Piggy Bank demonstration">
+    <section class="notch redesign" id="notch" aria-label="Piggy Bank panel">
+      <div class="notch-expanded">
+        <div class="piggy-header">
+          <div class="logo-title"><img class="piggy-icon" src="./piggy-panel-pink.png" alt=""><span class="header-title">PIGGY BANK</span></div>
+          <div class="tabs" id="tabs"><button class="tab active" type="button" data-account="0">Account 1</button><button class="tab" type="button" data-account="1">Account 2</button><button class="tab" type="button" data-account="2">Claude</button></div>
+          <span class="header-status" id="status">Updated just now</span>
+          <div class="header-actions"><button class="circle-btn" type="button" id="alerts" title="Notifications (demonstration)" aria-label="Notifications"><span data-lucide="bell"></span></button><button class="circle-btn" id="refresh" type="button" title="Reset sample data" aria-label="Reset sample data"><span data-lucide="refresh-cw"></span></button></div>
+        </div>
+        <div class="quota-grid">
+          <div class="quota-section quota-five">
+            <div class="capsule"><div class="well"><div class="liquid" data-fill="five"></div><div class="shine"></div></div></div>
+            <div class="quota-copy"><div class="quota-label">5H QUOTA</div><div class="quota-percent" data-number="five">74%</div><div class="quota-detail" data-reset="five">Resets in 2h 14m</div><div class="quota-muted" id="fiveCaption"></div></div>
+          </div>
+          <div aria-hidden="true"></div>
+          <div class="quota-section quota-week original">
+            <div class="original-content">
+              <div class="capsule"><div class="well"><div class="liquid" data-fill="week"></div><div class="shine"></div></div></div>
+              <div class="quota-copy">
+                <div class="quota-label">WEEKLY QUOTA</div>
+                <div class="quota-percent" data-number="week">38%</div>
+                <div class="quota-detail" id="originalDays">4d 8h remaining</div>
+                <div class="week-blocks" id="originalDayBlocks"></div>
+                <div class="quota-muted" id="originalReset">Resets Friday, 9:00 am</div>
+              </div>
+            </div>
+            <div class="redesign-content">
+              <div class="quota-label">WEEKLY QUOTA</div>
+              <div class="week-head"><div class="quota-percent" data-number="week">38%</div><div class="percent-note">available</div></div>
+              <div class="week-progress" role="progressbar" id="weekProgress" aria-label="Weekly quota available" aria-valuemin="0" aria-valuemax="100" aria-valuenow="38"><div class="week-fill" data-fill="week"></div></div>
+              <div class="week-reset"><span>Resets in</span><strong id="weekTime">4 days 8 hours</strong></div>
+              <div class="week-days" id="dayStrip" aria-label="Approximate days until weekly reset"></div>
+              <div class="day-labels"><span>Now</span><span id="resetDay">Fri, 9:00 am</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="banked" id="banked"><div class="banked-name">BANKED RESETS</div><div class="banked-chips" id="bankedChips"></div></div>
+      </div>
+      <div class="notch-idle" id="idleShell"></div>
+
+      <!-- Left Display and right Tasks companion icons from the current V-Notch windows. -->
+      <div class="companion-display" id="displayCompanion">
+        <!-- SVG blur + alpha threshold used in Codenotch's liquid shape transitions -->
+        <svg class="display-goo" id="displayGoo" viewBox="0 0 168 48" aria-hidden="true">
+          <defs>
+            <filter id="displayGooFilter" x="-15%" y="-50%" width="140%" height="200%" color-interpolation-filters="sRGB">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="3.7" result="blur"/>
+              <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 18 -8.5" result="shape"/>
+              <feFlood flood-color="#14171b" result="ink"/>
+              <feComposite in="ink" in2="shape" operator="in"/>
+            </filter>
+          </defs>
+          <g filter="url(#displayGooFilter)">
+            <circle cx="141" cy="24" r="20"/>
+            <circle id="gooDay" cx="141" cy="24" r="16"/>
+            <circle id="gooNight" cx="141" cy="24" r="16"/>
+            <circle id="gooOff" cx="141" cy="24" r="16"/>
+          </g>
+        </svg>
+        <div class="display-rail" id="displayRail">
+          <button class="companion-bubble small" type="button" id="displayDay" title="Day preset (sample)" aria-label="Day preset">
+            <span data-lucide="sun"></span>
+          </button>
+          <button class="companion-bubble small" type="button" id="displayNight" title="Night preset (sample)" aria-label="Night preset">
+            <span data-lucide="moon"></span>
+          </button>
+          <button class="companion-bubble small" type="button" id="displayOff" title="Off (no hardware action in prototype)" aria-label="Display off preview">
+            <span data-lucide="power"></span>
+          </button>
+        </div>
+        <button class="companion-bubble main" type="button" id="displayMain" aria-label="Open Display monitor controls" aria-controls="displayPreview" aria-expanded="false" title="Open Display monitor controls. Hover for Day, Night and Off shortcuts">
+          <span data-lucide="monitor"></span>
+        </button>
+      </div>
+      <div class="companion-tasks">
+        <button class="companion-bubble main" type="button" id="tasksMain" title="Open Tasks screen" aria-label="Open Tasks" aria-controls="tasksPreview" aria-expanded="false">
+          <span data-lucide="list-todo"></span>
+        </button>
+      </div>
+
+      <!-- Settings is a third companion bubble, aligned with Display and Tasks
+           at the TOP of the notch in every expanded/collapsed state. -->
+      <div class="companion-settings" id="settingsCompanion">
+        <svg class="settings-goo" id="settingsGoo" viewBox="0 0 168 48" aria-hidden="true">
+          <!-- Locally scoped filter avoids cross-SVG filter repaint glitches. -->
+          <defs>
+            <filter id="settingsGooFilter" x="-15%" y="-50%" width="140%" height="200%" color-interpolation-filters="sRGB">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="3.7" result="blur"/>
+              <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 18 -8.5" result="shape"/>
+              <feFlood flood-color="#14171b" result="ink"/>
+              <feComposite in="ink" in2="shape" operator="in"/>
+            </filter>
+          </defs>
+          <g filter="url(#settingsGooFilter)">
+            <circle cx="25" cy="24" r="20"/>
+            <circle id="gooQuit" cx="25" cy="24" r="16"/>
+            <circle id="gooPiggy" cx="25" cy="24" r="16"/>
+            <circle id="gooSound" cx="25" cy="24" r="16"/>
+          </g>
+        </svg>
+        <div class="settings-rail" id="settingsRail">
+          <button class="companion-bubble small" id="settingsQuit" type="button" title="Quit (demonstration only)" aria-label="Quit demonstration">
+            <span data-lucide="power"></span>
+          </button>
+          <button class="companion-bubble small" id="settingsPiggy" type="button" title="Open Piggy Bank" aria-label="Open Piggy Bank">
+            <img src="./piggy-panel-pink.png" alt="">
+          </button>
+          <button class="companion-bubble small" id="settingsSound" type="button" title="Open Audio controls (sample)" aria-label="Open Audio controls" aria-controls="audioPreview" aria-expanded="false">
+            <span data-lucide="volume-2"></span>
+          </button>
+        </div>
+        <button class="companion-bubble main" type="button" id="settingsMain" aria-controls="settingsRail" aria-expanded="false"
+          title="Settings: hover for Quit, Piggy and Sound; click to pin" aria-label="Settings shortcuts">
+          <span data-lucide="settings"></span>
+        </button>
+      </div>
+      <!-- Main Display menu: simulated production controls, no monitor API calls. -->
+      <section class="display-preview" id="displayPreview" hidden aria-label="Display monitor controls design preview">
+        <div class="audio-top">
+          <div>
+            <div class="audio-kicker">DISPLAY / DESIGN PREVIEW</div>
+            <div class="audio-title">
+              <span data-lucide="monitor"></span>
+              Displays
+            </div>
+            <div class="audio-detail">Brightness and contrast</div>
+          </div>
+          <div class="display-head-actions">
+            <label class="display-link-all"><input type="checkbox" id="displayLinkAll"> Link monitors</label>
+            <button class="display-header-btn" id="displaySleep" type="button" title="Sleep monitors (demonstration only)" aria-label="Sleep monitors preview">
+              <span data-lucide="moon-star"></span>
+            </button>
+            <button class="display-header-btn" id="displayRefresh" type="button" title="Refresh monitors (sample)" aria-label="Refresh monitor list">
+              <span data-lucide="refresh-cw"></span>
+            </button>
+          </div>
+        </div>
+        <div class="display-presets">
+          <strong>Presets</strong>
+          <div class="display-presets-list" role="group" aria-label="Display presets">
+            <button class="display-preset" type="button" data-display-preset="day" aria-pressed="false">Day</button>
+            <button class="display-preset" type="button" data-display-preset="night" aria-pressed="false">Night</button>
+            <button class="display-preset" type="button" data-display-preset="custom1" aria-pressed="false">Custom 1</button>
+            <button class="display-preset" type="button" data-display-preset="custom2" aria-pressed="false">Custom 2</button>
+            <button class="display-preset" type="button" data-display-preset="custom3" aria-pressed="false">Custom 3</button>
+          </div>
+          <button class="display-save" id="displaySave" type="button">Save current</button>
+        </div>
+        <div class="display-monitors" id="displayMonitors"></div>
+        <p class="display-foot">Illustrative monitors, presets and settings. This prototype never changes display brightness, contrast, presets or monitor power.</p>
+      </section>
+      <section class="audio-preview" id="audioPreview" hidden aria-label="Full Audio mixer design preview">
+        <div class="audio-top">
+          <div>
+            <div class="audio-kicker">SOUND / DESIGN PREVIEW</div>
+            <div class="audio-title">Audio mixer</div>
+            <div class="audio-detail">System and application controls, in the new visual style</div>
+          </div>
+        </div>
+        <details class="audio-section" id="audioSystemGroup" open>
+          <summary><span data-lucide="chevron-down" data-lucide-class="audio-section-arrow"></span><span class="audio-section-title">System</span><span class="audio-section-meta">Output · Input</span></summary>
+          <div class="audio-table-head"><span>Channel</span><span>Volume</span><span>Device</span></div>
+          <div class="audio-channel" data-channel="output">
+            <div class="audio-source">
+              <span class="audio-source-icon" aria-hidden="true"><span data-lucide="headphones"></span></span>
+              <span class="audio-source-text"><strong>Output</strong><small>System playback</small></span>
+            </div>
+            <div class="audio-volume-controls">
+              <button class="audio-mute-btn" type="button" aria-label="Mute Output" aria-pressed="false"><span data-lucide="volume-2"></span></button>
+              <input type="range" min="0" max="100" value="28" aria-label="Output volume">
+              <output>28%</output>
+            </div>
+            <div class="audio-route-wrap"><select aria-label="System output device"><option value="lg">1 - LG ULTRAFINE (AMD H...)</option><option value="headset">Headset (UE MEGABOOM)</option><option value="speakers">Speakers (Realtek Audio)</option></select></div>
+          </div>
+          <div class="audio-channel" data-channel="input">
+            <div class="audio-source">
+              <span class="audio-source-icon" aria-hidden="true"><span data-lucide="mic"></span></span>
+              <span class="audio-source-text"><strong>Input</strong><small>Microphone capture</small></span>
+            </div>
+            <div class="audio-volume-controls">
+              <button class="audio-mute-btn" type="button" aria-label="Mute Input" aria-pressed="false"><span data-lucide="mic" ></span></button>
+              <input type="range" min="0" max="100" value="100" aria-label="Input volume">
+              <output>100%</output>
+            </div>
+            <div class="audio-route-wrap"><select aria-label="System input device"><option value="headset">Headset (UE MEGABOOM)</option><option value="mic">Microphone Array (Realtek)</option></select></div>
+          </div>
+        </details>
+        <details class="audio-section" id="audioAppsGroup" open>
+          <summary><span data-lucide="chevron-down" data-lucide-class="audio-section-arrow"></span><span class="audio-section-title">Applications</span><span class="audio-section-meta">Individual volume and audio redirection</span></summary>
+          <div class="audio-table-head"><span>Application</span><span>Volume</span><span>Redirect audio to</span></div>
+          <div id="audioAppRows"></div>
+        </details>
+        <p class="audio-foot">Interactive design sample using illustrative devices and apps. No actual Windows volume, routing or microphone settings are changed.</p>
+      </section>
+      <section class="tasks-preview" id="tasksPreview" hidden aria-label="Tasks main screen design preview">
+        <div class="task-head"><div class="task-head-mark"><span data-lucide="check"></span></div><div class="task-head-meta"><strong>TASKS</strong><small id="taskCount">2 to do</small></div></div>
+        <label class="task-entry"><span>+</span><input id="taskInput" type="text" placeholder="Add a task and press Enter" maxlength="220" autocomplete="off" aria-label="Add a sample task"></label>
+        <div class="task-items" id="taskItems"></div>
+        <button class="task-completed" type="button" id="tasksCompleted" aria-expanded="false"><span data-lucide="chevron-right" data-lucide-class="chevron"></span> Completed <span class="count" id="taskCompletedCount">0</span></button>
+        <div class="task-completed-items" id="completedItems" hidden></div>
+        <div class="task-foot">Double-click a task to edit. Task changes stay in this browser demonstration only.</div>
+      </section>
+      <section class="settings-preview" id="settingsPreview" hidden aria-label="Settings"></section>
+    </section>
+    <div class="hoverhint" id="hoverhint">Interactive comparison. Choose an account or adjust the quotas below.</div>
+  </div>
+  <section class="panel-bottom">
+    <div class="card">
+      <h2 class="mini-head"><span data-lucide="plus"></span> Test the layout</h2>
+      <div class="controls">
+        <div class="control"><label for="fiveRange">5-hour remaining <output id="fiveValue">74%</output></label><input id="fiveRange" type="range" min="0" max="100" value="74"></div>
+        <div class="control"><label for="weekRange">Weekly remaining <output id="weekValue">38%</output></label><input id="weekRange" type="range" min="0" max="100" value="38"></div>
+      </div>
+      <p>Slide the values to check low and high quota states. Account tabs, the notch glance and the two design modes are interactive.</p>
+      <div class="footerline"><span>Sample data only, no account connection.</span><button type="button" class="small-btn" id="resetAll">Restore examples</button></div>
+    </div>
+    <div class="card">
+      <h2>Layout and Codenotch motion</h2>
+      <ul class="test-notes">
+        <li><strong>5H stays vertical</strong>, retaining the approved liquid vessel, colour changes and reset countdown.</li>
+        <li><strong>Weekly becomes horizontal</strong>, separating quota capacity from time until reset.</li>
+        <li><strong>Notch glance changes too</strong>, a ring for 5H and a small bar for Weekly, while preserving account hover grouping.</li>
+        <li><strong>Motion:</strong> Native spring equations, Codenotch response/damping values, 45 ms staggered elements and smooth quota readings.</li><li><strong>Side controls:</strong> Display, Tasks and Settings remain at the top of the notch, even when Piggy is expanded. Settings reveals Quit, Piggy and Sound on hover.</li><li><strong>Liquid shortcuts:</strong> Display and Settings use the same spring-driven gooey SVG separation.</li><li><strong>Audio mixer:</strong> Output and Input channels, device selection and per-app volume, mute and routing use the approved dark compact design. All controls are simulated.</li><li><strong>Main views:</strong> Piggy, Audio, Display and Tasks all expand downward from the same notch shell, with no floating panels or X buttons.</li><li><strong>Notch interaction:</strong> Click the blank top edge or outside to collapse; click the compact body to expand again.</li><li><strong>Unchanged:</strong> Piggy icon, black notch, approved quota visuals, account tabs, top actions and banked resets.</li>
+      </ul>
+    </div>
+  </section>
+  <p class="sample-label" style="margin:19px 2px 0">Independent browser study based on V-Notch source, not a production app build</p>
+  </main>
+</div>
+<script src="./lucide-icons.js"></script>
+<script src="./options.js"></script>
+<script src="./codenotch-motion.js"></script>
+<script src="./codenotch-integration.js"></script>
+<script src="./settings-store.js"></script>
+<script src="./tasks-store.js"></script>
+<script src="./tasks-ui.js"></script>
+<script src="./live-data.js"></script>
+<script src="./settings-screen.js"></script>
+<script src="./display-live.js"></script>
+<script src="./app-shell.js"></script>
+</body>
+</html>

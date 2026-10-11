@@ -1,0 +1,119 @@
+/* Settings screen. A fifth in-notch screen, styled like Tasks / Display / Audio. */
+
+/* Interface size and notch opacity (set from the Settings screen). */
+html.app .stage{zoom:var(--ui-scale,1)}
+.notch{background:linear-gradient(rgba(5,5,6,var(--notch-alpha,1)),rgba(0,0,0,var(--notch-alpha,1)) 72%)}
+
+.notch .settings-preview{
+ position:relative;display:none;width:100%;margin:0;padding:37px 26px 22px;
+ background:transparent;border:0;box-shadow:none;border-radius:0;color:#f5f5f8;text-align:left;
+}
+.notch .settings-preview[hidden]{display:none!important}
+.notch:not(.idle).screen-settings .settings-preview{display:block}
+.notch:not(.idle).screen-settings .notch-expanded,
+.notch:not(.idle).screen-settings .audio-preview,
+.notch:not(.idle).screen-settings .display-preview,
+.notch:not(.idle).screen-settings .tasks-preview{display:none!important}
+.notch.idle .settings-preview{display:none!important}
+
+.set-head{display:flex;align-items:center;gap:11px;padding-bottom:14px;margin-bottom:6px;border-bottom:1px solid #ffffff17}
+.set-mark{width:33px;height:33px;border-radius:11px;background:#151519;border:1px solid #ffffff16;display:grid;place-items:center}
+.set-mark svg{width:18px;height:18px;stroke:#ebedf2;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.set-head strong{display:block;font-size:13px;letter-spacing:.045em}
+.set-head small{display:block;margin-top:3px;font-size:11px;color:#92929c}
+.set-body{overflow-x:hidden;padding:2px 0;
+ /* Grows to fit; scrolls only if the screen is too short for everything. */
+ max-height:calc((100vh - 150px) / var(--ui-scale,1));overflow-y:auto;
+ scrollbar-width:thin;scrollbar-color:#4a4d55 transparent}
+
+.set-section{margin:16px 0 0}
+.set-title{font-size:10.5px;font-weight:750;letter-spacing:.09em;color:#ffffff7a;margin:0 0 9px}
+.set-card{border:1px solid #ffffff14;background:#ffffff08;border-radius:14px;padding:12px 14px}
+.set-card+.set-card{margin-top:9px}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:34px}
+.set-row+.set-row{margin-top:6px;border-top:1px solid #ffffff0e;padding-top:8px}
+.set-label{font-size:12.5px;font-weight:600;color:#fff}
+.set-hint{font-size:11px;color:#ffffff80;margin-top:2px;line-height:1.35}
+.set-value{font-size:11.5px;color:#ffffffb0;font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
+
+.set-input,.set-select{
+ background:#17191e;color:#eceff4;border:1px solid #ffffff2a;border-radius:9px;
+ padding:6px 10px;font:inherit;font-size:12px;outline-color:#8babfa;min-width:0;
+}
+.set-select{cursor:pointer;max-width:250px}
+.set-select option{background:#17191e;color:#eceff4}
+.set-input{width:150px}
+.set-range{width:170px;accent-color:#30d158;cursor:pointer}
+
+.set-switch{position:relative;width:38px;height:22px;flex:none;border-radius:999px;border:1px solid #ffffff2a;background:#2a2d34;padding:0;cursor:pointer;transition:background-color .16s}
+.set-switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .18s cubic-bezier(.34,1.4,.64,1)}
+.set-switch[aria-checked="true"]{background:#30d158;border-color:#30d158}
+.set-switch[aria-checked="true"]::after{transform:translateX(16px)}
+
+.set-btn{padding:6px 12px;border-radius:9px;border:1px solid #ffffff2a;background:#ffffff10;color:#f2f2f4;font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;transition:background-color .15s,border-color .15s}
+.set-btn:hover:not(:disabled){background:#ffffff1f;border-color:#ffffff48}
+.set-btn:disabled{opacity:.4;cursor:default}
+.set-btn.primary{background:#30d15826;border-color:#30d15870;color:#8ceea5}
+.set-btn.primary:hover:not(:disabled){background:#30d1583d}
+.set-btn.danger{color:#ff9b94}
+.set-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+
+.acct-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.acct-status{font-size:11.5px;margin-top:8px;color:#ffffffb0;display:flex;align-items:center;gap:7px;min-height:16px}
+.acct-dot{width:7px;height:7px;border-radius:50%;background:#6b7079;flex:none}
+.acct-dot.live{background:#30d158;box-shadow:0 0 7px #30d15880}
+.acct-dot.warn{background:#ffb340}
+.acct-dot.bad{background:#ff6c63}
+.acct-code{font-weight:750;letter-spacing:.06em;color:#ffd479;font-variant-numeric:tabular-nums}
+.acct-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;flex-wrap:wrap}
+.acct-browser{display:flex;align-items:center;gap:8px;font-size:11.5px;color:#ffffffa0}
+.set-foot{font-size:10.5px;color:#7d7f89;margin:14px 0 0}
+
+/* Two account cards side by side keep the whole screen on one page. */
+.acct-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acct-grid .set-card{margin-top:0}
+.acct-grid .acct-top{align-items:flex-start}
+.acct-grid .set-input{width:118px}
+.acct-grid .acct-bottom{flex-direction:column;align-items:stretch;gap:9px}
+.acct-grid .acct-browser{justify-content:space-between}
+.acct-grid .set-actions{justify-content:flex-start}
+.acct-grid .acct-status{flex-wrap:wrap}
+
+/* Compact notch: contents and side buttons shrink with --compact-scale (see settings-store.js).
+   Layout-based zoom, not a transform: the browser draws it at its real size, so it is always sharp.
+   (A transform here made it draw large and stretch the picture, which looked blurry at times.) */
+.notch.idle .notch-idle{zoom:var(--compact-scale,1)}
+html.app .notch.idle .companion-display,
+html.app .notch.idle .companion-tasks,
+html.app .notch.idle .companion-settings{zoom:var(--compact-scale,1)}
+html.app .companion-display,html.app .companion-tasks,html.app .companion-settings{transition:zoom .28s cubic-bezier(.2,.8,.2,1)}
+
+/* Vertical menu + page layout for the Settings screen. */
+.set-layout{display:grid;grid-template-columns:152px minmax(0,1fr);gap:18px;margin-top:14px;align-items:start}
+.set-nav{display:flex;flex-direction:column;gap:3px;padding-right:14px;border-right:1px solid #ffffff12;position:sticky;top:0}
+.set-nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;border:0;background:transparent;color:#ffffffa8;font:inherit;font-size:12.5px;font-weight:600;text-align:left;cursor:pointer;transition:background-color .15s,color .15s}
+.set-nav-item:hover{background:#ffffff0d;color:#fff}
+.set-nav-item[aria-current="page"]{background:#ffffff1c;color:#fff}
+.set-nav-item svg{width:16px;height:16px;flex:none;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.set-page[hidden]{display:none}
+.set-page .set-section:first-child{margin-top:0}
+.set-body{min-height:380px}
+
+/* The Claude account card spans both columns under the two Codex cards. */
+.acct-grid .acct-wide{grid-column:1 / -1}
+.acct-grid .acct-wide .acct-bottom{flex-direction:row;align-items:center}
+
+/* Appearance card: floats under the notch, outside the zoomed stage so it never resizes
+   under the pointer while Interface size is being dragged. */
+.appearance-card{position:fixed;left:50%;top:90px;transform:translateX(-50%);width:490px;max-width:calc(100vw - 24px);
+ padding:16px 18px 14px;border-radius:22px;background:#0a0b0e;border:1px solid #ffffff26;
+ box-shadow:0 22px 55px #0008,0 1px 3px #0004;color:#f5f5f8;z-index:40;font-size:12.5px;text-align:left}
+.appearance-card[hidden]{display:none}
+.appearance-card .set-section{margin-top:0}
+.appearance-card .set-select{max-width:none;min-width:225px;flex:none}
+.appearance-actions{display:flex;justify-content:flex-end;margin-top:12px}
+.set-nav-item .popout{margin-left:auto;display:inline-flex;opacity:.5}
+.set-nav-item .popout svg{width:13px;height:13px}
+
+.acct-show{margin-top:10px;padding-top:9px;border-top:1px solid #ffffff0e}
+.set-switch:disabled{opacity:.45;cursor:default}
