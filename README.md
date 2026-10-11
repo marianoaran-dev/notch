@@ -1,54 +1,49 @@
-# V-Notch, Tauri edition (preview)
+# V-Notch (Tauri experiment)
 
-A compact Windows desktop notch with animated controls, account quota displays, tasks and display utilities. This is a newer, simplified implementation using **Tauri 2, Rust, HTML, CSS and JavaScript**, separate from the older WPF version.
+The V-Notch Piggy prototype (`ui/`) running as a real, transparent, always-on-top
+window on the desktop. The original prototype in `../v-notch-piggy` is untouched.
 
-**Status: early preview (0.1.0).** Some interactions and external-service integrations remain experimental. The application is supplied as-is and is not digitally signed.
+## Status: Stage 1 (window only)
 
-## Features
+- Window is placed on the **second monitor**, flush with the top edge (over any
+  docked menu bar). Change with `VNOTCH_MONITOR=primary` or the `DEFAULT_MONITOR`
+  constant in `src-tauri/src/main.rs`.
+- Click-through everywhere except the notch, its side buttons and open panels.
+  The page reports those rectangles (`ui/app-shell.js`); Rust switches the window
+  between solid and click-through (`spawn_hit_tester`).
+- All data is still the prototype's sample data. Settings > Quit really quits.
 
-- Animated notch-style desktop interface and compact overlays
-- Two individually connectable Codex account quota panels
-- Optional Claude usage panel using an isolated sign-in WebView
-- Task list, stored locally, with optional one-time import from older V-Notch
-- Display controls and presets, depending on monitor hardware support
-- Appearance settings for size, monitor selection and notch opacity
+## Status: Stage 2 in progress (real data)
 
-The user interface may display placeholder content when opened directly in a browser. Live usage and system integrations require the Tauri desktop application. Some external quota integrations rely on undocumented service behaviour and may stop working when services change.
+- **Codex quota (tabs 1 and 2): wired.** Rust starts `codex app-server` with its own
+  account folder per tab (`%APPDATA%\au.com.aukalen.vnotch-tauri\codex\slot1`, `slot2`),
+  exactly as the WPF app does, and the page shows the real 5 h / weekly / banked resets.
+  These folders are separate from the WPF app's, so the two never share tokens.
+- Not connected yet? The header line says so; click it to sign in. Codex shows a web
+  address and a one-time code, and you enter the code in your own browser.
+- **Settings screen (gear button):** a fifth in-notch screen, ported from the WPF Settings
+  window but keeping only what this app uses: Piggy Bank accounts (name, sign-in browser,
+  Connect / Copy code / Disconnect) and Appearance (monitor, interface size, notch opacity,
+  Display shortcuts always visible). Saved to `%APPDATA%\au.com.aukalen.vnotch-tauri\settings.json`.
+  Options live in `ui/settings-store.js`; the screen is `ui/settings-screen.js`.
+- Claude tab, Tasks, monitor brightness/power: still sample data.
 
-## Download for Windows
+## Run (development, instant reload)
 
-See [Releases](https://github.com/marianoaran-dev/notch/releases) for any available **Windows preview executable**. No installer or code-signing certificate is included. Microsoft Edge WebView2 must be available (it is normally included on current Windows installations). Windows may warn about an unsigned download; only run software you trust.
+    npm install          # first time only
+    cargo tauri dev
 
-The executable runs on Windows 10 or 11 (64-bit) and may need an installed Codex CLI for account integration. This preview has not undergone broad hardware or accessibility testing.
+Saving a file in `ui/` updates the running notch immediately (CSS without a reload,
+JavaScript with a page reload). Saving Rust code rebuilds and restarts the app.
+`VNOTCH_DEBUG=1` prints hit-test info to the console.
 
-## Build from source
-
-On Windows, install Rust with the MSVC toolchain, the required Windows C++ build tools, WebView2 and Tauri 2 prerequisites. The source tree includes a Rust lockfile.
-
-Build the release executable in a terminal:
+## Build a standalone exe
 
     cd src-tauri
     cargo build --release
 
-The output is under src-tauri/target/release/v-notch-tauri.exe.
+## Layout
 
-For live interface development, install Node.js and the Tauri CLI, then run from the project root:
-
-    npm ci
-    cargo tauri dev
-
-The web interface is in ui/; the Windows integration layer is in src-tauri/src/.
-
-## Privacy and account connections
-
-Settings, accounts and tasks are stored in local app-specific folders. The application does not ship account tokens or personal settings. The Codex integration can start codex app-server in isolated account directories; the Claude integration uses a dedicated application-controlled WebView to obtain usage data from your signed-in session.
-
-Use your own accounts and follow the terms of the connected services. Do not publish your app-data folder, browser profiles, logs or credentials.
-
-## Credits and licences
-
-This project grew out of V-Notch development and its Piggy Bank interface. The original [V-Notch project](https://github.com/rainaku/V-Notch) is credited here, with its Apache 2.0 licence reproduced in [LICENSE](LICENSE).
-
-The animation techniques adapt work from [Codenotch by Vinz](https://github.com/vinzdg/codenotch), used under MIT terms. Lucide icons use ISC and related notices. See [third-party notices](ui/THIRD_PARTY_NOTICES.md) and [Lucide licence](ui/LICENSE-LUCIDE.txt).
-
-Not affiliated with Apple, Microsoft, OpenAI, Anthropic or the original projects. This project is an independent preview.
+- `ui/`        the prototype, plus `app.css` (transparent overlay layout) and
+               `app-shell.js` (hit rectangles, scale, click-away collapse, Quit)
+- `src-tauri/` Rust shell: window placement, click-through, commands

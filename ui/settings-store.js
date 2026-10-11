@@ -11,7 +11,7 @@
   notchOpacity:100,         // % opacity of the black notch body
   displayAlwaysOpen:true,   // keep Day / Night / Off visible beside Display
   monitor:'',               // "x,y" of the monitor to show on; empty = built-in default
-  names:['Account 1','Account 2','Claude'],
+  names:['Mariano','OzNano','Claude'],
   tasksWidth:650,           // px width of the open Tasks screen (drag its corner grip)
   tasksListHeight:340,      // px: tallest the task list may grow before it scrolls
   tasksListMin:0,           // px: shortest the list may be (0 = fit the tasks; set by dragging the handle)

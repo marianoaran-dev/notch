@@ -10,8 +10,8 @@ const I=window.AukalenLucide;
 if(!I)throw new Error('Missing self-contained Lucide icons');
 I.mount(document);
 const defaults=[
-{name:'Account 1',five:74,week:38,fiveReset:'2h 14m',weekReset:'Friday, 9:00 am',weekShort:'Fri, 9:00 am',weekTime:'4 days 8 hours',shortRemaining:'4d 8h remaining',days:4,banked:['15 Oct · 7:00 pm','20 Oct · 5:30 pm']},
-{name:'Account 2',five:18,week:86,fiveReset:'48m',weekReset:'Monday, 10:00 am',weekShort:'Mon, 10:00 am',weekTime:'2 days 6 hours',shortRemaining:'2d 6h remaining',days:2,banked:['12 Oct · 8:20 pm']},
+{name:'Mariano',five:74,week:38,fiveReset:'2h 14m',weekReset:'Friday, 9:00 am',weekShort:'Fri, 9:00 am',weekTime:'4 days 8 hours',shortRemaining:'4d 8h remaining',days:4,banked:['15 Oct · 7:00 pm','20 Oct · 5:30 pm']},
+{name:'OzNano',five:18,week:86,fiveReset:'48m',weekReset:'Monday, 10:00 am',weekShort:'Mon, 10:00 am',weekTime:'2 days 6 hours',shortRemaining:'2d 6h remaining',days:2,banked:['12 Oct · 8:20 pm']},
 {name:'Claude',five:61,week:54,fiveReset:'3h 5m',weekReset:'Sunday, 8:00 pm',weekShort:'Sun, 8:00 pm',weekTime:'5 days 1 hour',shortRemaining:'5d 1h remaining',days:5,banked:[]}
 ];
 let accounts=defaults.map(a=>({...a})),account=0,mode='redesign',view='expanded',mainScreen='piggy';
@@ -692,7 +692,7 @@ document.addEventListener('pointerdown',event=>{
 },{capture:true});
 document.addEventListener('keydown',e=>{
  if(e.key==='Escape'){
-
+  
   collapseNotch();
   if(settingsPinned){settingsPinned=false;syncSettings()}
  }

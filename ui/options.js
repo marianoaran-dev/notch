@@ -4,3 +4,4 @@ window.NotchOptions={
  // Keep the Display shortcuts (Day, Night, Off) visible instead of revealing them on hover.
  displayAlwaysOpen:true
 };
+
