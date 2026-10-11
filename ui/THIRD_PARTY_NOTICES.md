@@ -1,6 +1,6 @@
 # Third-party animation attribution
 
-The animation system in this browser prototype adapts techniques from:
+The animation system in this app adapts techniques from:
 
 Codenotch by Vinz
 https://github.com/vinzdg/codenotch
@@ -11,7 +11,7 @@ Relevant source files:
 - windows/codenotch/ui/notch.html: press response and SVG gooey filters
 - Sources/Features/MoveHandle.swift: liquid-merging concept
 
-The code here is an adaptation to the existing V-Notch prototype, not an exact copy of Codenotch's SwiftUI shape renderer. Its original MIT licence is reproduced below.
+The code here is an adaptation for this app, not an exact copy of Codenotch's SwiftUI shape renderer. Its original MIT licence is reproduced below.
 
 MIT License
 
@@ -37,4 +37,4 @@ SOFTWARE.
 
 ## Lucide Icons
 
-Icons sourced from https://github.com/lucide-icons/lucide and used in the browser prototype `lucide-icons.js`. The original Lucide ISC notice, plus the additional Feather-derived MIT notice, are retained in `LICENSE-LUCIDE.txt`. The Piggy Bank PNG is a pre-existing project asset and is not part of the Lucide library.
+Icons sourced from https://github.com/lucide-icons/lucide and used in `lucide-icons.js`. The original Lucide ISC notice, plus the additional Feather-derived MIT notice, are retained in `LICENSE-LUCIDE.txt`. The Piggy Bank PNG is a pre-existing project asset and is not part of the Lucide library.
